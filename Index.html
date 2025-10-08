@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda - E-Perpus MTs XYZ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #03A9F4;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">📚 E-Perpus MTs</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="books.html">Daftar Buku</a></li>
+                    <li class="nav-item"><a class="nav-link" href="borrow.html">Peminjaman</a></li>
+                    <li class="nav-item"><a class="nav-link" href="return.html">Pengembalian</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-5 pt-4">
+        
+        <div class="p-5 text-center text-white rounded-3 shadow-sm mb-5" style="background-color: #B3E5FC; color: #000 !important;">
+            <h1 class="display-5 fw-bold" style="color: #000 !important;">Selamat Datang di Perpustakaan Digital MTs</h1>
+            <p class="col-lg-8 mx-auto lead" style="color: #4CAF50 !important; font-weight: bold;">
+                Kelola koleksi buku dan transaksi peminjaman/pengembalian dengan mudah dan cepat.
+            </p>
+            <a href="books.html" class="btn btn-success btn-lg mt-3" style="background-color: #4CAF50; border-color: #4CAF50;">
+                <i class="bi bi-search"></i> Cari Buku
+            </a>
+        </div>
+
+        <h2 class="mb-4 text-center">Ringkasan Statistik Perpustakaan</h2>
+        <div class="row text-center g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100 border-primary" style="background-color: #E1F5FE;">
+                    <div class="card-body">
+                        <i class="bi bi-book display-4 text-primary"></i>
+                        <h3 class="card-title mt-3" id="totalBuku">...</h3>
+                        <p class="card-text text-muted">Total Judul Buku</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100 border-success" style="background-color: #E8F5E9;">
+                    <div class="card-body">
+                        <i class="bi bi-check-circle display-4 text-success"></i>
+                        <h3 class="card-title mt-3" id="bukuTersedia">...</h3>
+                        <p class="card-text text-muted">Buku Siap Dipinjam</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100 border-warning" style="background-color: #FFF3E0;">
+                    <div class="card-body">
+                        <i class="bi bi-arrow-left-right display-4 text-warning"></i>
+                        <h3 class="card-title mt-3" id="bukuDipinjam">...</h3>
+                        <p class="card-text text-muted">Buku Sedang Dipinjam</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100 border-info" style="background-color: #E0F7FA;">
+                    <div class="card-body">
+                        <i class="bi bi-person-badge display-4 text-info"></i>
+                        <h3 class="card-title mt-3" id="totalAnggota">...</h3>
+                        <p class="card-text text-muted">Total Anggota Aktif</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-3 mt-5" style="background-color: #CFD8DC; color: #455A64;">
+        <p class="mb-0">&copy; 2025 E-Perpus MTs - Integrasi Google Sheet</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script> </body>
+</html>

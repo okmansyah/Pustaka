@@ -1,0 +1,50 @@
+/* style.css */
+
+/* Pengaturan Body Dasar */
+body {
+    padding-top: 56px; /* Offset untuk fixed-top navbar */
+    background-color: #f8f9fa; /* Latar belakang abu-abu terang */
+}
+
+/* Kustomisasi Navbar */
+.navbar {
+    border-bottom: 3px solid #CFD8DC;
+}
+
+/* Hover effect untuk kartu statistik di Beranda */
+.card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Media Query untuk Tampilan Daftar Buku (Responsif) */
+
+/* Di layar besar (PC/Desktop), gunakan tampilan tabel */
+@media (min-width: 992px) {
+    #bookListContainer {
+        /* Sembunyikan grid/card di layar besar */
+        display: none; 
+    }
+    /* Tampilkan tabel daftar buku di layar besar */
+    .table-responsive {
+        display: block !important;
+    }
+}
+
+/* Di layar kecil (Mobile/Tablet), gunakan tampilan card/grid */
+@media (max-width: 991.98px) {
+    /* Tampilkan grid/card di layar kecil */
+    #bookListContainer {
+        display: flex;
+    }
+    /* Sembunyikan tabel di layar kecil */
+    .table-responsive {
+        display: none;
+    }
+}
+
+/* Teks Jumbotron Beranda */
+.lead {
+    font-size: 1.15rem;
+}
