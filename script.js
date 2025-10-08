@@ -202,3 +202,186 @@ if (returnForm) {
         }
     });
 }
+// script.js (Tambahan Logika untuk Halaman Admin)
+
+// Asumsi: GOOGLE_SCRIPT_URL sudah didefinisikan di awal file
+
+let currentBookData = []; // Menyimpan data buku yang dimuat untuk keperluan edit/hapus
+
+/**
+ * Memuat data buku ke dalam tabel admin
+ */
+async function loadAdminData() {
+    const tableBody = document.getElementById('dataTable');
+    const tableLoading = document.getElementById('tableLoading');
+    tableBody.innerHTML = '';
+    tableLoading.classList.remove('d-none');
+
+    // Menggunakan fungsi fetchData yang sudah ada, dengan action yang disiapkan untuk Apps Script
+    const data = await fetchData('getBooksAdmin'); 
+    tableLoading.classList.add('d-none');
+
+    if (data.error || !Array.isArray(data.data)) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-danger text-center">Gagal memuat data.</td></tr>`;
+        return;
+    }
+    
+    currentBookData = data.data; // Simpan data untuk manipulasi
+    
+    if (currentBookData.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-muted text-center">Belum ada data buku.</td></tr>`;
+        return;
+    }
+
+    currentBookData.forEach(book => {
+        // Asumsi data dari Apps Script memiliki properti: Kode, Judul, Pengarang, Kategori, Stok
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+            <td>${book.Kode}</td>
+            <td>${book.Judul}</td>
+            <td>${book.Pengarang}</td>
+            <td>${book.Kategori}</td>
+            <td>${book.Stok}</td>
+            <td>
+                <button class="btn btn-sm btn-info text-white me-2" onclick="editBook('${book.Kode}')">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteBook('${book.Kode}')">
+                    <i class="bi bi-trash"></i> Hapus
+                </button>
+            </td>
+        `;
+    });
+}
+
+/**
+ * Mengisi formulir untuk proses Edit Data
+ * @param {string} bookCode - Kode unik buku yang akan diedit
+ */
+function editBook(bookCode) {
+    const book = currentBookData.find(b => b.Kode === bookCode);
+    if (!book) return alert('Buku tidak ditemukan.');
+
+    // Isi Form
+    document.getElementById('formTitle').innerHTML = '<i class="bi bi-pencil"></i> Edit Data Buku: ' + bookCode;
+    document.getElementById('submitButton').textContent = 'Update Data';
+    document.getElementById('bookId').value = bookCode; // Menyimpan kode buku lama (sebagai ID)
+    document.getElementById('kode').value = book.Kode; // Nilai baru (jika kode buku boleh diubah)
+    document.getElementById('judul').value = book.Judul;
+    document.getElementById('pengarang').value = book.Pengarang;
+    document.getElementById('kategori').value = book.Kategori;
+    document.getElementById('stok').value = book.Stok;
+    
+    // Nonaktifkan field Kode saat Edit (jika Anda ingin KodeBuku tidak bisa diubah)
+    document.getElementById('kode').disabled = true;
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll ke atas (Form)
+}
+
+/**
+ * Mereset formulir ke mode Entri Baru
+ */
+function resetForm() {
+    document.getElementById('bookForm').reset();
+    document.getElementById('formTitle').innerHTML = '<i class="bi bi-file-earmark-plus"></i> Tambah Buku Baru';
+    document.getElementById('submitButton').textContent = 'Simpan Data';
+    document.getElementById('bookId').value = '';
+    document.getElementById('kode').disabled = false;
+    document.getElementById('formMessage').classList.add('d-none');
+}
+
+/**
+ * Menghapus Data Buku
+ * @param {string} bookCode - Kode unik buku yang akan dihapus
+ */
+async function deleteBook(bookCode) {
+    if (!confirm(`Yakin ingin menghapus buku dengan Kode: ${bookCode}? Tindakan ini tidak dapat dibatalkan.`)) return;
+
+    const messageBox = document.getElementById('formMessage');
+    messageBox.classList.remove('d-none', 'alert-success', 'alert-danger');
+    messageBox.classList.add('alert-info');
+    messageBox.textContent = `Memproses penghapusan data buku ${bookCode}...`;
+
+    const data = { action: 'deleteBook', kode: bookCode };
+
+    try {
+        // 🚨 GANTI dengan fetch asli ke GOOGLE_SCRIPT_URL
+        // const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+        // const result = await response.json();
+        
+        // --- SIMULASI RESPONS ---
+        await new Promise(resolve => setTimeout(resolve, 1500)); 
+        const result = { success: true, message: `Buku ${bookCode} berhasil dihapus.` };
+        // ------------------------
+
+        if (result.success) {
+            messageBox.classList.remove('alert-info');
+            messageBox.classList.add('alert-success');
+            messageBox.textContent = result.message;
+            loadAdminData(); // Muat ulang tabel
+        } else {
+            messageBox.classList.remove('alert-info');
+            messageBox.classList.add('alert-danger');
+            messageBox.textContent = result.message || 'Gagal menghapus data.';
+        }
+    } catch (error) {
+        messageBox.classList.remove('alert-info');
+        messageBox.classList.add('alert-danger');
+        messageBox.textContent = 'Error koneksi server saat penghapusan.';
+    }
+}
+
+
+/**
+ * Event Listener untuk Form Entri/Edit (Simpan Data)
+ */
+if (document.getElementById('bookForm')) {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Muat data tabel saat halaman Admin terbuka
+        loadAdminData(); 
+
+        document.getElementById('bookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const isEditing = formData.get('bookId') !== '';
+            
+            const data = Object.fromEntries(formData.entries());
+            data.action = isEditing ? 'editBook' : 'addBook';
+            
+            const messageBox = document.getElementById('formMessage');
+            messageBox.classList.remove('d-none', 'alert-success', 'alert-danger');
+            messageBox.classList.add('alert-info');
+            messageBox.textContent = `Memproses ${isEditing ? 'pembaruan' : 'penambahan'} data...`;
+
+            try {
+                // 🚨 GANTI dengan fetch asli ke GOOGLE_SCRIPT_URL
+                // const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+                // const result = await response.json();
+                
+                // --- SIMULASI RESPONS ---
+                await new Promise(resolve => setTimeout(resolve, 1500)); 
+                const result = { success: true, message: `Data buku ${data.kode} berhasil di${isEditing ? 'perbarui' : 'simpan'}!` };
+                // ------------------------
+
+                if (result.success) {
+                    messageBox.classList.remove('alert-info');
+                    messageBox.classList.add('alert-success');
+                    messageBox.textContent = result.message;
+                    resetForm();
+                    loadAdminData(); // Muat ulang tabel setelah sukses
+                } else {
+                    messageBox.classList.remove('alert-info');
+                    messageBox.classList.add('alert-danger');
+                    messageBox.textContent = result.message || 'Gagal menyimpan data.';
+                }
+            } catch (error) {
+                messageBox.classList.remove('alert-info');
+                messageBox.classList.add('alert-danger');
+                messageBox.textContent = 'Error koneksi server. Cek Apps Script Anda.';
+            }
+        });
+    });
+}
+
