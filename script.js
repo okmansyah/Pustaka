@@ -3,7 +3,7 @@
 // ========================================================
 // 🚨 PENTING: GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
 // ========================================================
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_XXXXXXXXX/exec'; 
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5jtJ3TWB41i8EhdE7jcRQG1hxP3yFfRwQahlfZoDkej6o8tez8keLouCvAzrQvpvuNQ/exec'; 
 
 
 // ========================================================
