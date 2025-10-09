@@ -1,11 +1,10 @@
 // script.js
 
-// 🚨 PENTING: GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
-// (Contoh: https://script.google.com/macros/s/AKfycbz_xxxxxxxxxxxxxxxxxxxxxx/exec)
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_GANTI_DENGAN_URL_ANDA/exec'; 
+// 🚨 PENTING: GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA YANG TELAH DIDEPLOY
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_XXXXXXXXX/exec'; 
 
 /**
- * Fungsi untuk mengambil data dari Google Sheet melalui Apps Script
+ * Fungsi untuk mengambil data dari Google Sheet melalui Apps Script (GET request)
  * @param {string} action - Parameter untuk Apps Script (e.g., 'getStats', 'getBooks')
  */
 async function fetchData(action) {
@@ -23,47 +22,71 @@ async function fetchData(action) {
 }
 
 /**
- * Halaman Beranda: Memuat Statistik
+ * Fungsi untuk mengirim data ke Google Sheet melalui Apps Script (POST request)
+ * @param {object} data - Objek data yang akan dikirim (termasuk properti 'action')
  */
+async function postData(data) {
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            // PENTING: Set Content-Type: application/json agar Apps Script bisa memproses JSON
+            headers: {
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        return result;
+
+    } catch (error) {
+        console.error('Terjadi kesalahan saat mengirim data:', error);
+        return { success: false, message: `Error koneksi server: ${error.message}` };
+    }
+}
+
+
+// =========================================================
+// Halaman Beranda: Memuat Statistik
+// =========================================================
 if (document.getElementById('totalBuku')) {
     document.addEventListener('DOMContentLoaded', async () => {
         const stats = await fetchData('getStats');
         
-        if (!stats.error) {
-            // Data yang benar-benar akan diambil dari Google Sheet
-            const totalBuku = stats.totalBuku || 0;
-            const tersedia = stats.bukuTersedia || 0;
-            const dipinjam = stats.bukuDipinjam || 0;
-            const anggota = stats.totalAnggota || 0;
-
-            document.getElementById('totalBuku').textContent = totalBuku;
-            document.getElementById('bukuTersedia').textContent = tersedia;
-            document.getElementById('bukuDipinjam').textContent = dipinjam;
-            document.getElementById('totalAnggota').textContent = anggota;
+        if (!stats.error && stats.success) {
+            // Mapping data dari Apps Script ke elemen HTML
+            document.getElementById('totalBuku').textContent = stats.data.TotalBuku || 0;
+            document.getElementById('bukuTersedia').textContent = stats.data.BukuTersedia || 0;
+            document.getElementById('bukuDipinjam').textContent = stats.data.BukuDipinjam || 0;
+            document.getElementById('totalAnggota').textContent = stats.data.TotalAnggota || 0;
         } else {
              // Tampilkan pesan error jika gagal
              document.getElementById('totalBuku').textContent = 'Error';
-             console.error(stats.message);
+             console.error('Gagal memuat statistik:', stats.message);
         }
     });
 }
 
-/**
- * Halaman Daftar Buku: Memuat Buku ke dalam Tampilan Card/Grid
- */
+// =========================================================
+// Halaman Daftar Buku: Memuat Buku ke dalam Tampilan Card/Grid
+// =========================================================
 if (document.getElementById('bookListContainer')) {
     document.addEventListener('DOMContentLoaded', async () => {
         const booksData = await fetchData('getBooks');
         const container = document.getElementById('bookListContainer');
         container.innerHTML = ''; // Kosongkan kontainer
 
-        if (!booksData.error && Array.isArray(booksData.data)) {
+        if (!booksData.error && booksData.success && Array.isArray(booksData.data)) {
             booksData.data.forEach(book => {
-                const isAvailable = book.Status === 'Tersedia';
+                const isAvailable = book.Status.toLowerCase() === 'tersedia';
                 const statusClass = isAvailable ? 'bg-success' : 'bg-danger';
                 const borderClass = isAvailable ? 'border-info' : 'border-danger';
                 const buttonHTML = isAvailable ? 
-                    '<button class="btn btn-sm btn-outline-info w-100">Pinjam (Detail)</button>' : 
+                    '<a href="borrow.html" class="btn btn-sm btn-outline-info w-100">Pinjam (Detail)</a>' : // Ganti ke tag a
                     '<button class="btn btn-sm btn-outline-secondary w-100" disabled>Dipinjam</button>';
                 
                 const cardHTML = `
@@ -87,13 +110,10 @@ if (document.getElementById('bookListContainer')) {
     });
 }
 
-// Simulasi Data Buku (DIHAPUS atau diabaikan karena fokus pada koneksi)
 
-// script.js (Logic Tambahan untuk Form)
-
-/**
- * Logika Form Peminjaman
- */
+// =========================================================
+// Logika Form Peminjaman (Borrow.html)
+// =========================================================
 const borrowForm = document.getElementById('borrowForm');
 if (borrowForm) {
     borrowForm.addEventListener('submit', async (e) => {
@@ -106,39 +126,28 @@ if (borrowForm) {
         
         const messageBox = document.getElementById('borrowMessage');
         messageBox.classList.remove('d-none', 'alert-success', 'alert-danger');
+        messageBox.classList.add('alert-info');
         messageBox.textContent = 'Memproses peminjaman...';
 
-        try {
-            // ✅ KODE ASLI DIAMBIL: Menghapus komentar dan simulasi
-            const response = await fetch(GOOGLE_SCRIPT_URL, { 
-                method: 'POST', 
-                body: JSON.stringify(data),
-                // Penting: header ini diperlukan agar Apps Script dapat memproses JSON body.
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-            });
-            const result = await response.json(); // Mengambil respons dari Apps Script
+        const result = await postData(data); // Panggil fungsi POST yang sudah diperbaiki
 
-            if (result.success) {
-                messageBox.classList.add('alert-success');
-                messageBox.textContent = result.message;
-                form.reset();
-            } else {
-                messageBox.classList.add('alert-danger');
-                messageBox.textContent = result.message || 'Gagal mencatat peminjaman. Respon Apps Script tidak sukses.';
-            }
-        } catch (error) {
+        if (result.success) {
+            messageBox.classList.remove('alert-info', 'alert-danger');
+            messageBox.classList.add('alert-success');
+            messageBox.textContent = result.message;
+            form.reset();
+        } else {
+            messageBox.classList.remove('alert-info', 'alert-success');
             messageBox.classList.add('alert-danger');
-            messageBox.textContent = 'Error koneksi server. Cek URL Apps Script atau jaringan.';
-            console.error('Error submitting borrow form:', error);
+            messageBox.textContent = result.message || 'Gagal mencatat peminjaman.';
         }
     });
 }
 
-// --------------------------------------------------------------------------------------------------
 
-/**
- * Logika Form Pengembalian
- */
+// =========================================================
+// Logika Form Pengembalian (Return.html)
+// =========================================================
 const returnForm = document.getElementById('returnForm');
 if (returnForm) {
     returnForm.addEventListener('submit', async (e) => {
@@ -146,22 +155,19 @@ if (returnForm) {
         
         const form = e.target;
         const formData = new FormData(form);
-        // Mengambil semua checkbox yang terpilih
-        const booksToReturn = formData.getAll('booksToReturn[]');
+        // Menggunakan getAll untuk checkbox yang namanya sama
+        const booksToReturn = formData.getAll('booksToReturn[]'); 
         
         const messageBox = document.getElementById('feeNotification');
         messageBox.style.display = 'block';
         messageBox.classList.remove('alert-warning', 'alert-success', 'alert-danger');
         messageBox.classList.add('alert-info');
-        messageBox.querySelector('h5').textContent = 'Memproses Pengembalian...';
-        messageBox.querySelector('p').innerHTML = 'Mohon tunggu...';
+        messageBox.querySelector('p').innerHTML = 'Memproses pengembalian...';
 
 
         if (booksToReturn.length === 0) {
-            messageBox.classList.remove('alert-info');
-            messageBox.classList.add('alert-warning');
-            messageBox.querySelector('h5').textContent = 'Peringatan';
-            messageBox.querySelector('p').innerHTML = "Pilih minimal satu buku untuk dikembalikan.";
+            alert("Pilih minimal satu buku untuk dikembalikan.");
+            messageBox.style.display = 'none';
             return;
         }
 
@@ -171,35 +177,24 @@ if (returnForm) {
             books: booksToReturn // Array of book codes
         };
         
-        try {
-            // ✅ KODE ASLI DIAMBIL: Menghapus komentar dan simulasi
-            const response = await fetch(GOOGLE_SCRIPT_URL, { 
-                method: 'POST', 
-                body: JSON.stringify(data),
-                // Penting: header ini diperlukan agar Apps Script dapat memproses JSON body.
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-            });
-            const result = await response.json(); // Mengambil respons dari Apps Script
+        const result = await postData(data); // Panggil fungsi POST yang sudah diperbaiki
 
-            if (result.success) {
-                messageBox.classList.remove('alert-info');
-                messageBox.classList.add('alert-success');
-                messageBox.querySelector('h5').textContent = 'Pengembalian Berhasil!';
-                // Gunakan result.denda yang dikirim dari Apps Script
-                const totalDenda = result.denda || 0; 
-                messageBox.querySelector('p').innerHTML = `${result.message}. Total Denda: <b>Rp ${totalDenda.toLocaleString('id-ID')}</b>.`;
-            } else {
-                messageBox.classList.remove('alert-info');
-                messageBox.classList.add('alert-danger');
-                messageBox.querySelector('h5').textContent = 'Pengembalian Gagal!';
-                messageBox.querySelector('p').innerHTML = result.message || 'Gagal memproses pengembalian. Respon Apps Script tidak sukses.';
-            }
-        } catch (error) {
-            messageBox.classList.remove('alert-info');
+        if (result.success) {
+            messageBox.classList.remove('alert-info', 'alert-danger');
+            messageBox.classList.add('alert-success');
+            messageBox.querySelector('h5').textContent = 'Pengembalian Berhasil!';
+            // Tampilkan denda jika ada
+            const dendaText = result.denda > 0 
+                ? `Total Denda: <b>Rp ${result.denda.toLocaleString('id-ID')}</b>.` 
+                : `Tidak ada denda.`;
+            messageBox.querySelector('p').innerHTML = `${result.message} ${dendaText}`;
+        } else {
+            messageBox.classList.remove('alert-info', 'alert-success');
             messageBox.classList.add('alert-danger');
-            messageBox.querySelector('h5').textContent = 'Error Koneksi!';
-            messageBox.querySelector('p').innerHTML = 'Error koneksi server saat pengembalian. Cek URL atau jaringan Anda.';
-            console.error('Error submitting return form:', error);
+            messageBox.querySelector('p').innerHTML = result.message || 'Gagal memproses pengembalian.';
         }
     });
 }
+
+// Catatan: Anda perlu mengimplementasikan logika 'Cek Peminjaman' (tombol di Return.html) secara terpisah
+// menggunakan `fetchData` dengan action baru (misalnya: `getBorrowedBooks`) dan memuat hasilnya ke #booksToReturnList.
