@@ -1,7 +1,7 @@
 // script.js
 
 // 🚨 PENTING: GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA YANG TELAH DIDEPLOY
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_XXXXXXXXX/exec'; 
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNM8Xqz8jD-sGFG-BPYdyzqHXlGWmUEvSmXUWHAOUaXLkIrbS64Oy0duJREOMZV3IcNg/exec'; 
 
 /**
  * Fungsi untuk mengambil data dari Google Sheet melalui Apps Script (GET request)
