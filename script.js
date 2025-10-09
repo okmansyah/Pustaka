@@ -2,7 +2,7 @@
 
 // 🚨 PENTING: GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
 // (Contoh: https://script.google.com/macros/s/AKfycbz_xxxxxxxxxxxxxxxxxxxxxx/exec)
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEn3s7H6GrEoMgafocjRpS1Ui4jTWtWUOfqj5BfYHIO8NbzBWB3K5efyHSdAaWhMDqLw/exec'; 
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_GANTI_DENGAN_URL_ANDA/exec'; 
 
 /**
  * Fungsi untuk mengambil data dari Google Sheet melalui Apps Script
